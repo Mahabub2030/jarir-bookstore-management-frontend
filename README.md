@@ -66,6 +66,8 @@ A modern and responsive bookstore management system frontend built with React, T
 
 ## 📂 Project Structure
 
+```base
+
 src/
 ├── assets/
 ├── components/
@@ -86,6 +88,7 @@ src/
 ├── hooks/
 ├── utils/
 └── App.jsx
+```
 
 ## ⚙️ Installation
 
@@ -99,11 +102,11 @@ cd jarir-bookstore-management-frontend
 
 ### Install Dependencies
 
-npm install
+bun install
 
 ### Start Development Server
 
-npm run dev
+bun dev
 
 ## 🔑 Environment Variables
 
@@ -149,4 +152,5 @@ This project is licensed under the MIT License.
 ## 👨‍💻 Developer
 
 Developed using React, Redux Toolkit, Tailwind CSS, and shadcn/ui to create a scalable and modern bookstore management system.
+
 # jarir-bookstore-management-frontend
