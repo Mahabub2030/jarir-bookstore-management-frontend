@@ -66,28 +66,121 @@ A modern and responsive bookstore management system frontend built with React, T
 
 ## 📂 Project Structure
 
-```base
-
-src/
-├── assets/
-├── components/
-│ ├── ui/
-│ ├── shared/
-│ └── layouts/
-├── pages/
-│ ├── Dashboard/
-│ ├── Books/
-│ ├── Orders/
-│ ├── Customers/
-│ └── Authentication/
-├── redux/
-│ ├── features/
-│ ├── store.js
-│ └── api/
-├── routes/
-├── hooks/
-├── utils/
-└── App.jsx
+```bash
+jarir-bookstore-management-frontend/
+│
+├── public/
+│   ├── favicon.ico
+│   ├── logo.png
+│   └── images/
+│
+├── src/
+│   │
+│   ├── assets/
+│   │   ├── images/
+│   │   ├── icons/
+│   │   └── styles/
+│   │
+│   ├── components/
+│   │   ├── common/
+│   │   │   ├── Loader.jsx
+│   │   │   ├── DataTable.jsx
+│   │   │   └── Modal.jsx
+│   │   │
+│   │   ├── forms/
+│   │   ├── charts/
+│   │   ├── layout/
+│   │   └── ui/
+│   │
+│   ├── pages/
+│   │   ├── Dashboard/
+│   │   │   ├── Dashboard.jsx
+│   │   │   └── DashboardStats.jsx
+│   │   │
+│   │   ├── Books/
+│   │   │   ├── BookList.jsx
+│   │   │   ├── AddBook.jsx
+│   │   │   └── EditBook.jsx
+│   │   │
+│   │   ├── Categories/
+│   │   ├── Inventory/
+│   │   ├── Orders/
+│   │   ├── Customers/
+│   │   ├── Reports/
+│   │   ├── Users/
+│   │   ├── Settings/
+│   │   └── Authentication/
+│   │       ├── Login.jsx
+│   │       ├── Register.jsx
+│   │       └── ForgotPassword.jsx
+│   │
+│   ├── routes/
+│   │   ├── PrivateRoute.jsx
+│   │   ├── AdminRoute.jsx
+│   │   └── Router.jsx
+│   │
+│   ├── redux/
+│   │   ├── store.js
+│   │   │
+│   │   ├── api/
+│   │   │   ├── baseApi.js
+│   │   │   ├── authApi.js
+│   │   │   ├── booksApi.js
+│   │   │   ├── ordersApi.js
+│   │   │   └── customersApi.js
+│   │   │
+│   │   └── features/
+│   │       ├── auth/
+│   │       ├── books/
+│   │       ├── inventory/
+│   │       ├── orders/
+│   │       └── customers/
+│   │
+│   ├── services/
+│   │   ├── authService.js
+│   │   ├── bookService.js
+│   │   └── orderService.js
+│   │
+│   ├── hooks/
+│   │   ├── useAuth.js
+│   │   ├── useDebounce.js
+│   │   └── usePagination.js
+│   │
+│   ├── lib/
+│   │   └── utils.js
+│   │
+│   ├── context/
+│   │   └── AuthProvider.jsx
+│   │
+│   ├── constants/
+│   │   ├── roles.js
+│   │   ├── routes.js
+│   │   └── apiEndpoints.js
+│   │
+│   ├── layouts/
+│   │   ├── DashboardLayout.jsx
+│   │   ├── AuthLayout.jsx
+│   │   └── MainLayout.jsx
+│   │
+│   ├── utils/
+│   │   ├── formatDate.js
+│   │   ├── currencyFormatter.js
+│   │   ├── localStorage.js
+│   │   └── validationSchemas.js
+│   │
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+│
+├── .env
+├── .gitignore
+├── components.json
+├── eslint.config.js
+├── tailwind.config.js
+├── vite.config.js
+├── package.json
+├── package-lock.json
+└── README.md
 ```
 
 ## ⚙️ Installation
