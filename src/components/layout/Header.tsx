@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router";
 import {
   ShoppingCart,
   User,
@@ -21,6 +19,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import { useI18n } from "../I18n/I18Provider";
+import { Link, useNavigate } from "react-router";
+import { useAppSelector } from "@/redux/hook";
 
 const CATEGORIES = [
   { slug: "smartphones", en: "Smartphones", ar: "الهواتف" },
@@ -33,78 +35,29 @@ const CATEGORIES = [
   { slug: "stationery", en: "Stationery", ar: "القرطاسية" },
 ];
 
-// Fallback Dictionary to prevent "t is not a function" errors
-const TRANSLATIONS = {
-  en: {
-    brand: "Midad Store",
-    tagline: "Your Ultimate Tech & Book Hub",
-    search_placeholder: "Search for smartphones, laptops, books...",
-    nav_dashboard: "My Profile",
-    nav_admin: "Admin Control",
-    nav_signout: "Sign Out",
-    nav_signin: "Sign In",
-    nav_cart: "Cart",
-  },
-  ar: {
-    brand: "متجر مِداد",
-    tagline: "وجهتك المثالية للكتب والتقنية",
-    search_placeholder: "ابحث عن الهواتف، الحاسبات، الكتب...",
-    nav_dashboard: "الملف الشخصي",
-    nav_admin: "لوحة المسؤول",
-    nav_signout: "تسجيل الخروج",
-    nav_signin: "تسجيل الدخول",
-    nav_cart: "السلة",
-  },
-};
-
-interface HeaderProps {
-  lang: "en" | "ar";
-  setLang: (lang: "en" | "ar") => void;
-  user: {
-    email: string;
-    full_name?: string;
-    role: "customer" | "admin";
-  } | null;
-  logoutUser: () => Promise<void>;
-  cartCount: number;
-  t?: (key: string) => string; // Made optional with '?' to protect execution
-}
-
-export function Header({
-  lang = "en",
-  setLang,
-  user,
-  logoutUser,
-  cartCount,
-  t,
-}: HeaderProps) {
+export function Header() {
+  const { t, lang, setLang } = useI18n();
+  const user = useAppSelector((s) => s.auth?.user);
+  const cartCount = useAppSelector((s) =>
+    s.cart?.items.reduce((n, i) => n + i.qty, 0),
+  );
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
-  // Safe runtime check: Use provided 't' function, or use our static TRANSLATIONS dictionary fallback
-  const translate = (key: string): string => {
-    if (typeof t === "function") return t(key);
-    return (
-      TRANSLATIONS[lang]?.[key as keyof (typeof TRANSLATIONS)["en"]] ?? key
-    );
-  };
-
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const query = q.trim();
-    if (query) navigate(`/search?q=${encodeURIComponent(query)}`);
+    if (q.trim()) navigate({ to: "/search", search: { q: q.trim() } });
   };
 
   return (
     <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-sm">
-      {/* Top Utility Bar */}
       <div className="border-b border-white/10 text-xs">
         <div className="container mx-auto flex items-center justify-between px-4 py-1.5">
-          <span className="opacity-80">{translate("tagline")}</span>
+          <span className="opacity-80">{t("tagline")}</span>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setLang(lang === "en" ? "ar" : "en")}
-              className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-1 hover:opacity-80"
             >
               <Languages className="h-3.5 w-3.5" />
               {lang === "en" ? "العربية" : "English"}
@@ -113,33 +66,29 @@ export function Header({
         </div>
       </div>
 
-      {/* Main Core Header */}
       <div className="container mx-auto flex items-center gap-4 px-4 py-3">
         <Link to="/" className="text-xl font-bold tracking-tight shrink-0">
-          {translate("brand")}
+          {t("brand")}
         </Link>
 
-        {/* Global Search Input Bar */}
         <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-2xl">
           <div className="flex w-full bg-background rounded-md overflow-hidden ring-1 ring-white/10">
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder={translate("search_placeholder")}
-              className="border-0 text-foreground focus-visible:ring-0 rounded-none h-9"
+              placeholder={t("search_placeholder")}
+              className="border-0 text-foreground focus-visible:ring-0 rounded-none"
             />
             <Button
               type="submit"
               variant="ghost"
-              size="sm"
-              className="rounded-none text-foreground hover:bg-accent h-9 px-3 border-s"
+              className="rounded-none text-foreground hover:bg-accent"
             >
               <Search className="h-4 w-4" />
             </Button>
           </div>
         </form>
 
-        {/* Navigation Actions Controls */}
         <div className="ms-auto flex items-center gap-1">
           {user ? (
             <DropdownMenu>
@@ -147,7 +96,7 @@ export function Header({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-primary-foreground hover:bg-white/10 data-[state=open]:bg-white/10"
+                  className="text-primary-foreground hover:bg-white/10"
                 >
                   <User className="h-4 w-4 me-1" />
                   <span className="hidden sm:inline">
@@ -155,25 +104,21 @@ export function Header({
                   </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                  <User className="h-4 w-4 me-2" /> {translate("nav_dashboard")}
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => navigate({ to: "/dashboard" })}
+                >
+                  <User className="h-4 w-4 me-2" /> {t("nav_dashboard")}
                 </DropdownMenuItem>
                 {user.role === "admin" && (
-                  <DropdownMenuItem onClick={() => navigate("/admin")}>
-                    <ShieldCheck className="h-4 w-4 me-2" />{" "}
-                    {translate("nav_admin")}
+                  <DropdownMenuItem onClick={() => navigate({ to: "/admin" })}>
+                    <ShieldCheck className="h-4 w-4 me-2" /> {t("nav_admin")}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={async () => {
-                    await logoutUser();
-                    navigate("/");
-                  }}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <LogOut className="h-4 w-4 me-2" /> {translate("nav_signout")}
+                <DropdownMenuItem>
+                  {/* need added here user logout */}
+                  <LogOut className="h-4 w-4 me-2" /> {t("nav_signout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -184,11 +129,10 @@ export function Header({
               size="sm"
               className="text-primary-foreground hover:bg-white/10"
             >
-              <Link to="/auth">{translate("nav_signin")}</Link>
+              <Link to="/auth">{t("nav_signin")}</Link>
             </Button>
           )}
 
-          {/* Cart Icon Component Button */}
           <Button
             asChild
             variant="ghost"
@@ -197,11 +141,9 @@ export function Header({
           >
             <Link to="/cart">
               <ShoppingCart className="h-4 w-4" />
-              <span className="hidden sm:inline ms-1">
-                {translate("nav_cart")}
-              </span>
+              <span className="hidden sm:inline ms-1">{t("nav_cart")}</span>
               {cartCount > 0 && (
-                <Badge className="absolute -top-1 -end-1 h-5 min-w-5 px-1 flex items-center justify-center bg-destructive text-destructive-foreground font-bold text-[10px] rounded-full">
+                <Badge className="absolute -top-1 -end-1 h-5 min-w-5 px-1 bg-brand text-brand-foreground">
                   {cartCount}
                 </Badge>
               )}
@@ -210,15 +152,14 @@ export function Header({
         </div>
       </div>
 
-      {/* Horizontal Scrollable Category Bar Navigation */}
       <nav className="border-t border-white/10 bg-primary/95">
-        <div className="container mx-auto flex items-center gap-1 px-4 py-1 overflow-x-auto no-scrollbar">
-          <Menu className="h-4 w-4 opacity-60 shrink-0 me-1" />
+        <div className="container mx-auto flex items-center gap-1 px-4 py-1 overflow-x-auto">
+          <Menu className="h-4 w-4 opacity-60 shrink-0" />
           {CATEGORIES.map((c) => (
             <Link
               key={c.slug}
-              to={`/category/${c.slug}`}
-              className="text-sm px-3 py-1.5 rounded hover:bg-white/10 whitespace-nowrap transition-colors"
+              to="/category/$slug"
+              className="text-sm px-3 py-1.5 rounded hover:bg-white/10 whitespace-nowrap"
             >
               {lang === "ar" ? c.ar : c.en}
             </Link>
