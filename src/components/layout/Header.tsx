@@ -5,6 +5,14 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useI18n } from "../I18n/I18Provider";
 import { Link, useNavigate } from "react-router";
+import {
+  authApi,
+  useLogoutMutation,
+  useUserInfoQuery,
+} from "@/redux/features/auth/auth.api";
+import { useDispatch } from "react-redux";
+import { ModeToggle } from "./ModeToggler";
+import { role } from "@/constants/role";
 
 const CATEGORIES = [
   { slug: "smartphones", en: "Smartphones", ar: "الهواتف" },
@@ -17,18 +25,41 @@ const CATEGORIES = [
   { slug: "stationery", en: "Stationery", ar: "القرطاسية" },
 ];
 
+const navigationLinks = [
+  { href: "/", label: "Home", role: "PUBLIC" },
+  { href: "/about", label: "About", role: "PUBLIC" },
+  { href: "/admin", label: "Dashboard", role: role.admin },
+  { href: "/admin", label: "Dashboard", role: role.superAdmin },
+  { href: "/user", label: "Dashboard", role: role.user },
+];
+
 export function Header() {
   const { t, lang, setLang } = useI18n();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const { data } = useUserInfoQuery(undefined);
+  const dispatch = useDispatch();
+  const [logout] = useLogoutMutation();
+
+  const currentUserRole = data?.data?.role;
+  const userEmail = data?.data?.email;
 
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (q.trim()) {
-      // Adjusted syntax to use clean URL queries standard for React Router
       navigate(`/search?q=${encodeURIComponent(q.trim())}`);
     }
   };
+
+  const handleLogout = async () => {
+    await logout(undefined);
+    dispatch(authApi.util.resetApiState());
+  };
+
+  // Find the valid dashboard link matching the current logged-in user's role
+  const dynamicDashboardLink = navigationLinks.find(
+    (link) => link.role !== "PUBLIC" && link.role === currentUserRole,
+  );
 
   return (
     <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-sm">
@@ -75,15 +106,38 @@ export function Header() {
 
         {/* Navigation Action Buttons */}
         <div className="ms-auto flex items-center gap-1">
-          {/* User sign-in display (Simplified to default sign-in button for now) */}
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="text-primary-foreground hover:bg-white/10"
-          >
-            <Link to="/auth">{t("nav_signin")}</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+
+            {userEmail ? (
+              <>
+                {/* Dynamically maps the Dashboard button depending on role (admin/superAdmin/user) */}
+                {dynamicDashboardLink && (
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="text-sm cursor-pointer"
+                  >
+                    <Link to={dynamicDashboardLink.href}>
+                      {dynamicDashboardLink.label}
+                    </Link>
+                  </Button>
+                )}
+
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="text-sm cursor-pointer"
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button asChild className="text-sm cursor-pointer">
+                <Link to="/login">Login</Link>
+              </Button>
+            )}
+          </div>
 
           {/* Cart button */}
           <Button

@@ -24,15 +24,6 @@ export const router = createBrowserRouter([
         path: "about",
         Component: AboutPage,
       },
-
-      {
-        path: "employees",
-        Component: Employees,
-      },
-      {
-        path: "employees/:id",
-        Component: EmployeesDetails,
-      },
     ],
   },
   {
